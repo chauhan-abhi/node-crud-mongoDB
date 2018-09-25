@@ -1,4 +1,10 @@
-const MongoClient = require('mongodb').MongoClient
+//const MongoClient = require('mongodb').MongoClient
+const {MongoClient, ObjectID} = require('mongodb')  // using Object Destructuring
+
+//onject destructuring
+// var user = {name: 'Abhi', age :21}
+// var {name} = user
+// console.log(name)
 
 const url = 'mongodb://localhost:27017'
 
@@ -9,24 +15,29 @@ MongoClient.connect(url, (err, client) => {
 
     console.log('Connected to MongoDB server')
     const db = client.db('TodoApp')
-    insertDocuments(db, () => {
-        client.close()
-    })
+    
+    // insertDocuments(db, () => {
+    //     client.close()
+    // })
+    client.close()
+
     
 })
 
 const insertDocuments = (db, callback) => {
-    const collection = db.collection('Todo')
+    const collection = db.collection('Users')
     collection.insertMany([
         {
-            text: 'Something todo',
-            completed: false  
+            name: 'Abhijeet',
+            age: 21,
+            location: 'Noida'
         }
     ], (err, result) => {
         if(err) {
-            return console.log('Unable to insert TODO', err)
+            return console.log('Unable to insert Users', err)
         }
-        console.log(JSON.stringify(result.ops, undefined, 2))
+        console.log(result.ops[0]._id.getTimestamp())
+        //console.log(JSON.stringify(result.ops[0]._id, undefined, 2))
         callback(result)
     })
 }
