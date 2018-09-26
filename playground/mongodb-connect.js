@@ -16,13 +16,37 @@ MongoClient.connect(url, (err, client) => {
     console.log('Connected to MongoDB server')
     const db = client.db('TodoApp')
     
-    // insertDocuments(db, () => {
-    //     client.close()
-    // })
-    client.close()
+    deleteDocuments(db, () => {
+        client.close()
+    })
+    //client.close()
 
     
 })
+
+const deleteDocuments = (db, callback) => {
+    const collection = db.collection('Todo')
+
+    /************ using callback*********/
+    collection.deleteMany({text: 'Eat lunch'}, (err, results) => {
+        if(err) {
+            return console.log('Unable to delete document')
+        }
+        console.log('Deleting doc')
+        console.log(results)
+    })
+
+    /*******using promise***********/
+    // collection.deleteOne({
+    //     text: 'Eat lunch'
+    // }).then((result) => {
+    //     console.log('Deleting doc')
+    //     console.log(result)
+    // },  (err) => {
+    //     console.log('Unable to delete todo', err)
+    // })
+}
+
 
 const insertDocuments = (db, callback) => {
     const collection = db.collection('Users')

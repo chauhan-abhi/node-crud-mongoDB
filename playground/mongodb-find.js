@@ -40,7 +40,7 @@ MongoClient.connect(url, (err, client) => {
 // }
 /***** count cursors  *******/
 const findDocuments = (db, callback) => {
-    const collection = db.collection('Users')
+    const collection = db.collection('Todo')
     collection.find({name:'Harry'}).toArray().then((docs) => {
         // onSuccess
         //console.log(`Todos count: ${count}`)
