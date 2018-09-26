@@ -1,6 +1,6 @@
 //const MongoClient = require('mongodb').MongoClient
 const {MongoClient, ObjectID} = require('mongodb')  // using Object Destructuring
-
+ 
 //onject destructuring
 // var user = {name: 'Abhi', age :21}
 // var {name} = user
