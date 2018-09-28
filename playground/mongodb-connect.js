@@ -28,13 +28,13 @@ const deleteDocuments = (db, callback) => {
     const collection = db.collection('Todo')
 
     /************ using callback*********/
-    // collection.deleteMany({text: 'Eat lunch'}, (err, results) => {
-    //     if(err) {
-    //         return console.log('Unable to delete document')
-    //     }
-    //     console.log('Deleting doc')
-    //     console.log(results)
-    // })
+    collection.deleteMany({text: 'Eat lunch'}, (err, results) => {
+        if(err) {
+            return console.log('Unable to delete document')
+        }
+        console.log('Deleting doc')
+        console.log(results)
+    })
 
     /******* FInd One And Delete one ********/
     // collection.findOneAndDelete({text: 'Todo2'}).then((result) => {
