@@ -1,31 +1,31 @@
-var mongoose = require('mongoose')
+var express = require('express')
+var bodyParser = require('body-parser')
 
-mongoose.Promise = global.Promise   
-// tell mongoose which promise library 
-//we want to use which is the es6 build in one
-mongoose.connect('mongodb://localhost:27017/TodoApp',  { useNewUrlParser: true })
+//es 6 destructuring
+var {mongoose} = require('./db/mongoose')
+var {Todo} = require('./models/todo')
+var {User} = require('./models/user')
+// // creatng instance of Todo
+// var newTodo = new Todo({
+//     text: '   Play CS',
+//     completed: false,
+//     completedAt: 324324
+// })
 
-var Todo = mongoose.model('Todo', {
-    text: {
-        type: String
-    },
-    completed: {
-        type: Boolean
-    },
-    completedAt: {
-        type: Number    // unix time 
-    }
+// newTodo.save().then((doc) => {
+//     console.log(JSON.stringify(doc, undefined, 2))
+// },(e) => {
+//     console.log('Unable to save todo', e)
+// })
+
+
+var newUser = new User({
+    email: 'abc@gmail.com   '
 })
 
-// creatng instance of Todo
-var newTodo = new Todo({
-    text: 'Play Fifa',
-    completed: false,
-    completedAt: 0234324324
-})
-
-newTodo.save().then((doc) => {
+newUser.save().then((doc) => {
     console.log(JSON.stringify(doc, undefined, 2))
 },(e) => {
-    console.log('Unable to save todo', e)
+    console.log('Unable to save', e)
 })
+
