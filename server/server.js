@@ -5,27 +5,23 @@ var bodyParser = require('body-parser')
 var {mongoose} = require('./db/mongoose')
 var {Todo} = require('./models/todo')
 var {User} = require('./models/user')
-// // creatng instance of Todo
-// var newTodo = new Todo({
-//     text: '   Play CS',
-//     completed: false,
-//     completedAt: 324324
-// })
 
-// newTodo.save().then((doc) => {
-//     console.log(JSON.stringify(doc, undefined, 2))
-// },(e) => {
-//     console.log('Unable to save todo', e)
-// })
+var app = express()
 
+//send json to express app --> this app
+app.use(bodyParser.json())
 
-var newUser = new User({
-    email: 'abc@gmail.com   '
+app.post('/todos', (req, res) => {
+    var todo = new Todo({
+        text: req.body.text
+    })
+    todo.save().then((doc) => {
+        res.send(doc)
+    }, (e) => {
+        res.status(400).send(e)
+    })
 })
 
-newUser.save().then((doc) => {
-    console.log(JSON.stringify(doc, undefined, 2))
-},(e) => {
-    console.log('Unable to save', e)
+app.listen(3000, () => {
+    console.log('Started')
 })
-
