@@ -77,6 +77,7 @@ app.patch('/todos/:id', (req, res) => {
     var id = req.params.id
     // only these two properties can be updated
     // not allowing users to update anything they want
+    // alter to creating Todo object using req params as done in post todo route
     var body = _.pick(req.body, ['text', 'completed'])
     
     if(!ObjectID.isValid(id)) {
@@ -98,6 +99,19 @@ app.patch('/todos/:id', (req, res) => {
         res.status(400).send()
     })
 
+
+})
+
+// POST users
+app.post('/users', (req, res) => {
+    // alter to creating Todo object using req params as done in post todo route
+    var body = _.pick(req.body, ['email', 'password'])
+    var user = new User(body)
+    user.save().then((doc) => {
+        res.send(doc)
+    }, (e) => {
+        res.status(400).send(e)
+    })
 
 })
 
