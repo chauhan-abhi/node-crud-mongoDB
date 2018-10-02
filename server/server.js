@@ -107,9 +107,14 @@ app.post('/users', (req, res) => {
     // alter to creating Todo object using req params as done in post todo route
     var body = _.pick(req.body, ['email', 'password'])
     var user = new User(body)
-    user.save().then((doc) => {
-        res.send(doc)
-    }, (e) => {
+    
+    
+    user.save().then(() => {
+        return user.generateAuthToken()
+    }).then((token) => {
+        //send the token as header
+        res.header('x-auth', token).send(user)
+    }).catch((e) => {
         res.status(400).send(e)
     })
 
