@@ -10,7 +10,7 @@ const {ObjectID} =  require('mongodb')
 var {mongoose} = require('./db/mongoose')
 var {Todo} = require('./models/todo')
 var {User} = require('./models/user')
-
+var {authenticate} = require('./middleware/authenticate')
 
 var app = express()
 const port = process.env.PORT
@@ -107,8 +107,7 @@ app.post('/users', (req, res) => {
     // alter to creating Todo object using req params as done in post todo route
     var body = _.pick(req.body, ['email', 'password'])
     var user = new User(body)
-    
-    
+      
     user.save().then(() => {
         return user.generateAuthToken()
     }).then((token) => {
@@ -120,20 +119,24 @@ app.post('/users', (req, res) => {
 
 })
 
-app.get('/users/me', (req, res) => {
-    var token = req.header('x-auth')
-    User.findByToken(token).then((user) => {
-        if(!user) {
-            // if no user can do same as done below in catch block
-            //res.status(401).send()
-            // but alternatively we can reject this promise and following 
-            // statements will not execute and catch block will execute
-            return Promise.reject()
-        }
-        res.send(user)
-    }).catch((e) => {
-        res.status(401).send()
-    })
+// this will get modified req object bcoz of reference authenticate
+app.get('/users/me', authenticate, (req, res) => {
+    console.log('request authenticated')
+    res.send(req.user)
+
+    // var token = req.header('x-auth')
+    // User.findByToken(token).then((user) => {
+    //     if(!user) {
+    //         // if no user can do same as done below in catch block
+    //         //res.status(401).send()
+    //         // but alternatively we can reject this promise and following 
+    //         // statements will not execute and catch block will execute
+    //         return Promise.reject()
+    //     }
+    //     res.send(user)
+    // }).catch((e) => {
+    //     res.status(401).send()
+    // })
 
 })
 
