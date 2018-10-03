@@ -38,6 +38,7 @@ var UserSchema = new mongoose.Schema({
 
 // this method determines what is send back when a mongoose model
 // is converted into JSON value
+// overriding toJSON() method
 UserSchema.methods.toJSON = function () {
     var user = this
     // responsible for taking our mongoose variable 'user'
@@ -54,6 +55,7 @@ UserSchema.methods.toJSON = function () {
 // this stores individual document
 // user.generateAuthTokem() --> here this refers to user
 UserSchema.methods.generateAuthToken = function() {
+    // instance methods get called with individual documents
     var user = this
     var access = 'auth'
     var token = jwt.sign({_id: user._id.toHexString(), access}, 'secret123').toString()
@@ -72,8 +74,30 @@ UserSchema.methods.generateAuthToken = function() {
 
     
     return user.save().then(() => {
-        return token
+        return token  
     })
+}
+
+// .statics is an object and method or property attached to it becomes model method
+UserSchema.statics.findByToken = function (token) {
+    //model methods are get called with the model 
+    var User = this
+    var decoded 
+    try {
+        decoded = jwt.verify(token, 'secret123')
+    } catch(e) {
+        // return new Promise((resolve, reject) => {
+        //     reject()
+        // })
+        //OR
+        return Promise.reject()
+    }
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    })
+
 }
 
 // pass schema as second argument
