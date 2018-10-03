@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
+const bcrypt = require('bcryptjs')
 
 var UserSchema = new mongoose.Schema({ 
     email: {
@@ -97,8 +98,27 @@ UserSchema.statics.findByToken = function (token) {
         'tokens.token': token,
         'tokens.access': 'auth'
     })
-
 }
+
+// run code before the save event--> before saving doc to db 
+UserSchema.pre('save',  function(next) {
+    var user = this
+    // if the password was modified.
+    // if later update is performed on email or anything then 
+    // the hashed password will be hashed again and program breaks
+    // so we will encrpt the password when the password is modiified
+    if(user.isModified('password')) {
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(user.password, salt, (err, hash) => {
+                user.password = hash
+                next()
+            })
+        })
+    } else {
+        next()
+    }
+
+})
 
 // pass schema as second argument
 var User = mongoose.model('User', UserSchema)
