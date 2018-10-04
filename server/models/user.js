@@ -79,6 +79,23 @@ UserSchema.methods.generateAuthToken = function() {
     })
 }
 
+UserSchema.methods.removeToken = function(token) {
+    //$pull removes an item fro =m array on the basis of certain criteria
+    var user =  this
+    return user.update({
+        $pull: {
+            tokens: {
+                // if token passed in the function does not match any token
+                // in array --> no element pulled/removed
+                // else --> removed
+                //token: token --> normal syntax
+                token       // es6 syntax
+            }
+        }
+    })
+}
+
+
 // .statics is an object and method or property attached to it becomes model method
 UserSchema.statics.findByToken = function (token) {
     //model methods are get called with the model 

@@ -119,7 +119,7 @@ app.post('/users', (req, res) => {
 
 })
 
-// this will get modified req object bcoz of reference authenticate
+// this will get modified req object bcoz of reference authenticate middleware
 app.get('/users/me', authenticate, (req, res) => {
     console.log('request authenticated')
     res.send(req.user)
@@ -152,6 +152,15 @@ app.post('/users/login', (req, res) => {
     }).catch((e) => {
         //not able to login
         console.log('status error')
+        res.status(400).send()
+    })
+})
+
+app.delete('/users/me/token', authenticate, (req, res) => {
+    //call to instance method via user
+    req.user.removeToken(req.token).then(() => {
+        res.status(200).send()
+    },() => {
         res.status(400).send()
     })
 })
