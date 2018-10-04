@@ -107,7 +107,7 @@ app.post('/users', (req, res) => {
     // alter to creating Todo object using req params as done in post todo route
     var body = _.pick(req.body, ['email', 'password'])
     var user = new User(body)
-      
+
     user.save().then(() => {
         return user.generateAuthToken()
     }).then((token) => {
@@ -138,6 +138,22 @@ app.get('/users/me', authenticate, (req, res) => {
     //     res.status(401).send()
     // })
 
+})
+
+// POST /users/login {email, password}
+app.post('/users/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password'])
+    console.log(body)
+    User.findByCredentials(body.email, body.password).then((user) => {
+        // create new token for the user 
+        user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user)
+        })
+    }).catch((e) => {
+        //not able to login
+        console.log('status error')
+        res.status(400).send()
+    })
 })
 
 

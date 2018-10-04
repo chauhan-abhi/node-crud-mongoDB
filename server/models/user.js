@@ -100,6 +100,32 @@ UserSchema.statics.findByToken = function (token) {
     })
 }
 
+UserSchema.statics.findByCredentials = function(email, password) {
+    var User = this
+    //chain this promise by returning bcoz then call is attached in servver.js
+    return User.findOne({email}).then((user) => {
+        //if we dont get a user
+        if(!user) { 
+            //call catch of server.js
+            return Promise.reject()    
+        }
+        //bcrypt work only with callbacks not with promises so 
+        //create a promise and wrap the function inside it
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(password, user.password, (err, result) => {
+                if(result) {
+                    console.log('resolve promise')
+                    resolve(user)
+                } else {
+                    //send 400
+                    console.log('reject promise')
+                    reject()
+                }
+            })
+        })         
+    })
+}
+
 // run code before the save event--> before saving doc to db 
 UserSchema.pre('save',  function(next) {
     var user = this
