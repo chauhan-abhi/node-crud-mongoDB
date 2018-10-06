@@ -18,9 +18,12 @@ const port = process.env.PORT
 //send json to express app --> this app
 app.use(bodyParser.json())
 
-app.post('/todos', (req, res) => {
+// authenticate middleware lets us have access to 
+// the user and the token
+app.post('/todos', authenticate, (req, res) => {
     var todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     })
     todo.save().then((doc) => {
         res.send(doc)
@@ -29,8 +32,12 @@ app.post('/todos', (req, res) => {
     })
 })
 
-app.get('/todos', (req, res) => {
-    Todo.find().then((todos) => {
+// get only those Todos where actual logged in user
+// created --> see query in Todo.find()
+app.get('/todos', authenticate, (req, res) => {
+    Todo.find({
+        _creator: req.user._id
+    }).then((todos) => {
         res.send({todos,
         errorString: 'success'})
     }, (e) => {
@@ -38,13 +45,17 @@ app.get('/todos', (req, res) => {
     })
 })
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id
     // validate id using isValid
     if(!ObjectID.isValid(id)) {
         res.status(404 ).send()
     } else {
-        Todo.findById(id).then((todo) => {
+        // just access those todo by id created by them
+        Todo.findOne({
+            _id: id,
+            _creator: req.user._id
+        }).then((todo) => {
             if(todo) {
                 res.send({ todo})
             } else {
@@ -53,15 +64,28 @@ app.get('/todos/:id', (req, res) => {
         }, (e) => {
             res.status(400).send()  
         })
+        /*******old code to fetch Todo by id without authentication ***********/
+        // Todo.findById(id).then((todo) => {
+        //     if(todo) {
+        //         res.send({ todo})
+        //     } else {
+        //         res.status(404).send()
+        //     }
+        // }, (e) => {
+        //     res.status(400).send()  
+        // })
     }
 })
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id
     if(!ObjectID.isValid(id)) {
         res.status(404 ).send()
     } else {
-        Todo.findByIdAndRemove(id).then((todo) => {
+        Todo.findOneAndRemove({
+            _id: id,
+            _creator: req.user._id
+        }).then((todo) => {
             if(!todo) {
                 return res.status(404).send()
             }
@@ -69,11 +93,20 @@ app.delete('/todos/:id', (req, res) => {
         }).catch((e) => {
             res.status(400).send()
         })
+
+        // Todo.findByIdAndRemove(id).then((todo) => {
+        //     if(!todo) {
+        //         return res.status(404).send()
+        //     }
+        //     res.send({todo})
+        // }).catch((e) => {
+        //     res.status(400).send()
+        // })
     }
 })
 
 //update todo
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id
     // only these two properties can be updated
     // not allowing users to update anything they want
@@ -89,8 +122,12 @@ app.patch('/todos/:id', (req, res) => {
         body.completed = false
         body.completedAt = null
     }
-    // set new: true --> return new object on update
-    Todo.findByIdAndUpdate(id, { $set: body}, {new: true }).then((todo) => {
+
+    Todo.findOneAndUpdate({
+        //custom query
+        _id: id,
+        _creator: req.user._id
+    }, { $set: body}, {new: true}).then((todo) => {
         if(!todo) {
             return res.status(404).send()
         }
@@ -98,6 +135,17 @@ app.patch('/todos/:id', (req, res) => {
     }).catch((e) => {
         res.status(400).send()
     })
+
+
+    // set new: true --> return new object on update
+    // Todo.findByIdAndUpdate(id, { $set: body}, {new: true }).then((todo) => {
+    //     if(!todo) {
+    //         return res.status(404).send()
+    //     }
+    //     res.send({todo})
+    // }).catch((e) => {
+    //     res.status(400).send()
+    // })
 
 
 })

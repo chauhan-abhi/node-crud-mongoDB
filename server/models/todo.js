@@ -14,7 +14,14 @@ var Todo = mongoose.model('Todo', {
     completedAt: {
         type: Number,   // unix time 
         default:null
+    },
+    _creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        // not make a todo unless logged in
+        required: true
     }
+
+
 })
 
 module.exports = {Todo}
