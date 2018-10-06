@@ -59,7 +59,7 @@ UserSchema.methods.generateAuthToken = function() {
     // instance methods get called with individual documents
     var user = this
     var access = 'auth'
-    var token = jwt.sign({_id: user._id.toHexString(), access}, 'secret123').toString()
+    var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString()
     
     // update user's tokens array which is a regular array
     // using es6 syntax directly pushing value of calculated access and calc token
@@ -102,7 +102,7 @@ UserSchema.statics.findByToken = function (token) {
     var User = this
     var decoded 
     try {
-        decoded = jwt.verify(token, 'secret123')
+        decoded = jwt.verify(token, process.env.JWT_SECRET)
     } catch(e) {
         // return new Promise((resolve, reject) => {
         //     reject()
