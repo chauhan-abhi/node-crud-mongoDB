@@ -1,4 +1,4 @@
-# Node.js-crud-mongoDB
+# Node.js CRUD operations-MongoDB
 
 - This sample illustrates CRUD opereation on MongoDB using node.js tools and techniques.
 - Authorizations using auth key and hashing is implemented
