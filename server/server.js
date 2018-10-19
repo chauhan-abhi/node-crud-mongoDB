@@ -105,6 +105,26 @@ app.delete('/todos/:id', authenticate, (req, res) => {
     }
 })
 
+/*********Delete todos by id using async-await *************/
+app.delete('/todos/:id', authenticate, async(req, res) => {
+    var id = req.params.id
+    if(!ObjectID.isValid(id)) {
+        return res.status(404).send()
+    } 
+    try {
+        const todo = await Todo.findOneAndRemove({
+            _id: id,
+            _creator: req.user._id
+        })
+        if(!todo) {
+            return res.status(404).send()
+        }
+        res.send({todo})    
+    } catch(e) {
+        res.status(400).send()
+    }
+})
+
 //update todo
 app.patch('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id
@@ -151,20 +171,34 @@ app.patch('/todos/:id', authenticate, (req, res) => {
 })
 
 // POST users
-app.post('/users', (req, res) => {
+// app.post('/users', (req, res) => {
+//     // alter to creating Todo object using req params as done in post todo route
+//     var body = _.pick(req.body, ['email', 'password'])
+//     var user = new User(body)
+
+//     user.save().then(() => {
+//         return user.generateAuthToken()
+//     }).then((token) => {
+//         //send the token as header
+//         res.header('x-auth', token).send(user)
+//     }).catch((e) => {
+//         res.status(400).send(e)
+//     })
+
+// })
+
+/***** POST users using async-await*******/
+app.post('/users', async(req, res) => {
+   try {
     // alter to creating Todo object using req params as done in post todo route
     var body = _.pick(req.body, ['email', 'password'])
     var user = new User(body)
-
-    user.save().then(() => {
-        return user.generateAuthToken()
-    }).then((token) => {
-        //send the token as header
-        res.header('x-auth', token).send(user)
-    }).catch((e) => {
-        res.status(400).send(e)
-    })
-
+    await user.save()
+    const token = await user.generateAuthToken()
+    res.header('x-auth', token).send(user)
+   } catch(e) {
+    res.status(400).send(e)
+   }
 })
 
 // this will get modified req object bcoz of reference authenticate middleware
@@ -189,28 +223,53 @@ app.get('/users/me', authenticate, (req, res) => {
 })
 
 // POST /users/login {email, password}
-app.post('/users/login', (req, res) => {
-    var body = _.pick(req.body, ['email', 'password'])
-    console.log(body)
-    User.findByCredentials(body.email, body.password).then((user) => {
-        // create new token for the user 
-        user.generateAuthToken().then((token) => {
-            res.header('x-auth', token).send(user)
-        })
-    }).catch((e) => {
+// app.post('/users/login', (req, res) => {
+//     var body = _.pick(req.body, ['email', 'password'])
+//     console.log(body)
+//     User.findByCredentials(body.email, body.password).then((user) => {
+//         // create new token for the user 
+//         user.generateAuthToken().then((token) => {
+//             res.header('x-auth', token).send(user)
+//         })
+//     }).catch((e) => {
+//         //not able to login
+//         console.log('status error')
+//         res.status(400).send()
+//     })
+// })
+
+/********Using async await instead of promise chaining********* */
+app.post('/users/login', async(req, res) => {
+    try {
+        var body = _.pick(req.body, ['email', 'password'])
+        const user = await User.findByCredentials(body.email, body.password)
+        const token = await user.generateAuthToken()
+        res.header('x-auth', token).send(user)
+    } catch(e) {
         //not able to login
         console.log('status error')
         res.status(400).send()
-    })
+    }
 })
 
-app.delete('/users/me/token', authenticate, (req, res) => {
-    //call to instance method via user
-    req.user.removeToken(req.token).then(() => {
+// app.delete('/users/me/token', authenticate, (req, res) => {
+//     //call to instance method via user
+//     req.user.removeToken(req.token).then(() => {
+//         res.status(200).send()
+//     },() => {
+//         res.status(400).send()
+//     })
+// })
+
+/********Using async await instead of promise chaining********* */
+app.delete('/users/me/token', authenticate, async (req, res) => {
+    try {
+        await req.user.removeToken(req.token)
         res.status(200).send()
-    },() => {
-        res.status(400).send()
-    })
+    
+    }catch(e) {
+        res.status(400).send() 
+    }
 })
 
 
