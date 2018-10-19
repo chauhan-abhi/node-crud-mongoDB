@@ -105,6 +105,26 @@ app.delete('/todos/:id', authenticate, (req, res) => {
     }
 })
 
+/*********Delete todos by id using async-await *************/
+app.delete('/todos/:id', authenticate, async(req, res) => {
+    var id = req.params.id
+    if(!ObjectID.isValid(id)) {
+        return res.status(404).send()
+    } 
+    try {
+        const todo = await Todo.findOneAndRemove({
+            _id: id,
+            _creator: req.user._id
+        })
+        if(!todo) {
+            return res.status(404).send()
+        }
+        res.send({todo})    
+    } catch(e) {
+        res.status(400).send()
+    }
+})
+
 //update todo
 app.patch('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id
