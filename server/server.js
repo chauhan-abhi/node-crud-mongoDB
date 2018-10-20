@@ -170,23 +170,6 @@ app.patch('/todos/:id', authenticate, (req, res) => {
 
 })
 
-// POST users
-// app.post('/users', (req, res) => {
-//     // alter to creating Todo object using req params as done in post todo route
-//     var body = _.pick(req.body, ['email', 'password'])
-//     var user = new User(body)
-
-//     user.save().then(() => {
-//         return user.generateAuthToken()
-//     }).then((token) => {
-//         //send the token as header
-//         res.header('x-auth', token).send(user)
-//     }).catch((e) => {
-//         res.status(400).send(e)
-//     })
-
-// })
-
 /***** POST users using async-await*******/
 app.post('/users', async(req, res) => {
    try {
@@ -222,21 +205,6 @@ app.get('/users/me', authenticate, (req, res) => {
 
 })
 
-// POST /users/login {email, password}
-// app.post('/users/login', (req, res) => {
-//     var body = _.pick(req.body, ['email', 'password'])
-//     console.log(body)
-//     User.findByCredentials(body.email, body.password).then((user) => {
-//         // create new token for the user 
-//         user.generateAuthToken().then((token) => {
-//             res.header('x-auth', token).send(user)
-//         })
-//     }).catch((e) => {
-//         //not able to login
-//         console.log('status error')
-//         res.status(400).send()
-//     })
-// })
 
 /********Using async await instead of promise chaining********* */
 app.post('/users/login', async(req, res) => {
@@ -251,15 +219,6 @@ app.post('/users/login', async(req, res) => {
         res.status(400).send()
     }
 })
-
-// app.delete('/users/me/token', authenticate, (req, res) => {
-//     //call to instance method via user
-//     req.user.removeToken(req.token).then(() => {
-//         res.status(200).send()
-//     },() => {
-//         res.status(400).send()
-//     })
-// })
 
 /********Using async await instead of promise chaining********* */
 app.delete('/users/me/token', authenticate, async (req, res) => {
